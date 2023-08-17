@@ -194,6 +194,10 @@ public final class BatteryService extends SystemService {
     private boolean mHasTurboPower;
     private boolean mLastTurboPower;
 
+    private boolean mSfcCharger;
+    private boolean mHasSfcCharger;
+    private boolean mLastSfcCharger;
+
     private long mDischargeStartTime;
     private int mDischargeStartLevel;
 
@@ -245,6 +249,8 @@ public final class BatteryService extends SystemService {
                 com.android.internal.R.bool.config_hasVoocCharger);
         mHasTurboPower = mContext.getResources().getBoolean(
                 com.android.internal.R.bool.config_hasTurboPowerCharger);
+        mHasSfcCharger = mContext.getResources().getBoolean(
+                com.android.internal.R.bool.config_hasSfcCharger);
 
         mCriticalBatteryLevel = mContext.getResources().getInteger(
                 com.android.internal.R.integer.config_criticalBatteryWarningLevel);
@@ -584,6 +590,7 @@ public final class BatteryService extends SystemService {
         mWarpCharger = mHasWarpCharger && (isWarpCharger() || isOemCharger());
         mVoocCharger = mHasVoocCharger && (isVoocCharger() || isOemCharger());
         mTurboPower = mHasTurboPower && (isTurboPower() || isOemCharger());
+        mSfcCharger = mHasSfcCharger && (isSfcCharger() || isOemCharger());
 
         if (force
                 || (mHealthInfo.batteryStatus != mLastBatteryStatus
@@ -605,7 +612,8 @@ public final class BatteryService extends SystemService {
                         || mDashCharger != mLastDashCharger
                         || mWarpCharger != mLastWarpCharger
                         || mVoocCharger != mLastVoocCharger
-                        || mTurboPower != mLastTurboPower)) {
+                        || mTurboPower != mLastTurboPower
+                        || mSfcCharger != mLastSfcCharger)) {
 
             if (mPlugType != mLastPlugType) {
                 if (mLastPlugType == BATTERY_PLUGGED_NONE) {
@@ -788,6 +796,7 @@ public final class BatteryService extends SystemService {
             mLastWarpCharger = mWarpCharger;
             mLastVoocCharger = mVoocCharger;
             mLastTurboPower = mTurboPower;
+            mLastSfcCharger = mSfcCharger;
         }
     }
 
@@ -829,6 +838,7 @@ public final class BatteryService extends SystemService {
         intent.putExtra(BatteryManager.EXTRA_WARP_CHARGER, mWarpCharger);
         intent.putExtra(BatteryManager.EXTRA_VOOC_CHARGER, mVoocCharger);
         intent.putExtra(BatteryManager.EXTRA_TURBO_POWER, mTurboPower);
+        intent.putExtra(BatteryManager.EXTRA_SFC_CHARGER, mSfcCharger);
         if (DEBUG) {
             Slog.d(TAG, "Sending ACTION_BATTERY_CHANGED. scale:" + BATTERY_SCALE
                     + ", info:" + mHealthInfo.toString());
@@ -935,6 +945,20 @@ public final class BatteryService extends SystemService {
             br.close();
             file.close();
             return "Turbo".equals(state);
+        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
+        }
+        return false;
+    }
+
+    private boolean isSfcCharger() {
+        try {
+            FileReader file = new FileReader("/sys/class/power_supply/battery/hv_charger_status");
+            BufferedReader br = new BufferedReader(file);
+            String state = br.readLine();
+            br.close();
+            file.close();
+            return "3".equals(state);
         } catch (FileNotFoundException e) {
         } catch (IOException e) {
         }
