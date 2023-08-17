@@ -60,8 +60,17 @@
     <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • VOOC 快速充電中 (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> 後充滿)</string>
     <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • VOOC 快速充電中</string>
     <!-- Indication on the keyguard that is shown when the device is charging with a turbo power charger. Should match keyguard_plugged_in_turbo_charging [CHAR LIMIT=40]-->
-    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • Turbo 快速充電中 (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> 後充滿)</string>
-    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • Turbo 快速充電中</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • 渦輪閃充中 (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> 後充滿)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • 渦輪閃充中</string>
+    <!-- Indication on the keyguard that is shown when the device is charging with a SFC charger. Should match keyguard_plugged_in_sfc_charging [CHAR LIMIT=40]-->
+    <string name="keyguard_indication_sfc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • 超快速充電 (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> 後充滿)</string>
+    <string name="keyguard_plugged_in_sfc_charging"><xliff:g id="percentage">%s</xliff:g> • 超快速充電</string> 
+    <!-- Indication on the keyguard that is shown when the device is charging with a SFC 2.0 charger. Should match keyguard_plugged_in_sfc_v2_charging [CHAR LIMIT=40]-->
+    <string name="keyguard_indication_sfc_v2_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • 超快速充電 2.0 (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> 後充滿)</string>
+    <string name="keyguard_plugged_in_sfc_v2_charging"><xliff:g id="percentage">%s</xliff:g> • 超快速充電 2.0</string> 
+    <!-- Indication on the keyguard that is shown when the device is charging with a AFC charger. Should match keyguard_plugged_in_afc_charging [CHAR LIMIT=40]-->
+    <string name="keyguard_indication_afc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • AFC 快速充電 (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> 後充滿)</string>
+    <string name="keyguard_plugged_in_afc_charging"><xliff:g id="percentage">%s</xliff:g> • AFC 快速充電</string> 
     <!-- On The Go -->
     <string name="onthego_notif_ticker">OTG 模式已啟動</string>
     <string name="onthego_notif_title">OTG 模式正處於啟用狀態</string>
