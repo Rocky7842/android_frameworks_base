@@ -208,6 +208,10 @@ public final class BatteryService extends SystemService {
     private boolean mHasSfcV2Charger;
     private boolean mLastSfcV2Charger;
 
+    private boolean mAfcCharger;
+    private boolean mHasAfcCharger;
+    private boolean mLastAfcCharger;
+
     private long mDischargeStartTime;
     private int mDischargeStartLevel;
 
@@ -278,6 +282,8 @@ public final class BatteryService extends SystemService {
                 mContext.getResources().getBoolean(com.android.internal.R.bool.config_hasTurboPowerCharger);
         mHasSfcCharger = mContext.getResources().getBoolean(
                 com.android.internal.R.bool.config_hasSfcCharger);
+        mHasAfcCharger = mContext.getResources().getBoolean(
+                com.android.internal.R.bool.config_hasAfcCharger);
 
         mCriticalBatteryLevel = mContext.getResources().getInteger(
                 com.android.internal.R.integer.config_criticalBatteryWarningLevel);
@@ -623,6 +629,7 @@ public final class BatteryService extends SystemService {
         mOemCharger = mHasOemCharger && isOemCharger();
         mSfcCharger = mHasSfcCharger && (isSfcCharger() || isOemCharger());
         mSfcV2Charger = mHasSfcCharger && (isSfcV2Charger() || isOemCharger());
+        mAfcCharger = mHasAfcCharger && (isAfcCharger() || isOemCharger());
 
         if (force || mHealthInfo.chargingPolicy != mLastChargingPolicy) {
             mLastChargingPolicy = mHealthInfo.chargingPolicy;
@@ -650,6 +657,7 @@ public final class BatteryService extends SystemService {
                         || mOemCharger != mLastOemCharger
                         || mSfcCharger != mLastSfcCharger
                         || mSfcV2Charger != mLastSfcV2Charger
+                        || mAfcCharger != mLastAfcCharger
                         || mHealthInfo.chargingState != mLastChargingState
                         || mHealthInfo.batteryFullChargeUah != mLastBatteryFullCharge
                         || mHealthInfo.batteryFullChargeDesignCapacityUah !=
@@ -847,6 +855,7 @@ public final class BatteryService extends SystemService {
             mLastOemCharger = mOemCharger;
             mLastSfcCharger = mSfcCharger;
             mLastSfcV2Charger = mSfcV2Charger;
+            mLastAfcCharger = mAfcCharger;
         }
     }
 
@@ -893,6 +902,7 @@ public final class BatteryService extends SystemService {
         intent.putExtra(BatteryManager.EXTRA_OEM_CHARGER, mOemCharger);
         intent.putExtra(BatteryManager.EXTRA_SFC_CHARGER, mSfcCharger);
         intent.putExtra(BatteryManager.EXTRA_SFC_V2_CHARGER, mSfcV2Charger);
+        intent.putExtra(BatteryManager.EXTRA_AFC_CHARGER, mAfcCharger);
         if (DEBUG) {
             Slog.d(TAG, "Sending ACTION_BATTERY_CHANGED. scale:" + BATTERY_SCALE
                     + ", info:" + mHealthInfo.toString());
@@ -1034,6 +1044,20 @@ public final class BatteryService extends SystemService {
             br.close();
             file.close();
             return "4".equals(state);
+        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
+        }
+        return false;
+    }
+
+    private boolean isAfcCharger() {
+        try {
+            FileReader file = new FileReader("/sys/class/power_supply/battery/hv_charger_status");
+            BufferedReader br = new BufferedReader(file);
+            String state = br.readLine();
+            br.close();
+            file.close();
+            return "1".equals(state) || "2".equals(state);
         } catch (FileNotFoundException e) {
         } catch (IOException e) {
         }
