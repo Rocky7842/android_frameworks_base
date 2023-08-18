@@ -33,6 +33,7 @@ import static android.os.BatteryManager.EXTRA_WARP_CHARGER;
 import static android.os.BatteryManager.EXTRA_VOOC_CHARGER;
 import static android.os.BatteryManager.EXTRA_TURBO_POWER;
 import static android.os.BatteryManager.EXTRA_SFC_CHARGER;
+import static android.os.BatteryManager.EXTRA_SFC_V2_CHARGER;
 
 import android.content.Context;
 import android.content.Intent;
@@ -56,6 +57,7 @@ public class BatteryStatus {
     public static final int CHARGING_VOOC = 5;
     public static final int CHARGING_TURBO_POWER = 6;
     public static final int CHARGING_SFC = 7;
+    public static final int CHARGING_SFC_V2 = 8;
 
     public final int status;
     public final int level;
@@ -72,13 +74,14 @@ public class BatteryStatus {
     public final boolean voocChargeStatus;
     public final boolean turboPowerStatus;
     public final boolean sfcChargeStatus;
+    public final boolean sfcV2ChargeStatus;
 
     public BatteryStatus(int status, int level, int plugged, int health,
             int maxChargingWattage, boolean present,
             int maxChargingCurrent, int maxChargingVoltage,
             float temperature, boolean dashChargeStatus, boolean warpChargeStatus,
             boolean voocChargeStatus, boolean turboPowerStatus,
-            boolean sfcChargeStatus) {
+            boolean sfcChargeStatus, boolean sfcV2ChargeStatus) {
 
         this.status = status;
         this.level = level;
@@ -94,6 +97,7 @@ public class BatteryStatus {
         this.voocChargeStatus = voocChargeStatus;
         this.turboPowerStatus = turboPowerStatus;
         this.sfcChargeStatus = sfcChargeStatus;
+        this.sfcV2ChargeStatus = sfcV2ChargeStatus;
     }
 
     public BatteryStatus(Intent batteryChangedIntent) {
@@ -108,6 +112,7 @@ public class BatteryStatus {
         voocChargeStatus = batteryChangedIntent.getBooleanExtra(EXTRA_VOOC_CHARGER, false);
         turboPowerStatus = batteryChangedIntent.getBooleanExtra(EXTRA_TURBO_POWER, false);
         sfcChargeStatus = batteryChangedIntent.getBooleanExtra(EXTRA_SFC_CHARGER, false);
+        sfcV2ChargeStatus = batteryChangedIntent.getBooleanExtra(EXTRA_SFC_V2_CHARGER, false);
 
         final int maxChargingMicroAmp = batteryChangedIntent.getIntExtra(EXTRA_MAX_CHARGING_CURRENT,
                 -1);
@@ -214,6 +219,7 @@ public class BatteryStatus {
                 voocChargeStatus ? CHARGING_VOOC :
                 turboPowerStatus ? CHARGING_TURBO_POWER :
                 sfcChargeStatus ? CHARGING_SFC :
+                sfcV2ChargeStatus ? CHARGING_SFC_V2 :
                 maxChargingWattage <= 0 ? CHARGING_UNKNOWN :
                 maxChargingWattage < slowThreshold ? CHARGING_SLOWLY :
                         maxChargingWattage > fastThreshold ? CHARGING_FAST :
