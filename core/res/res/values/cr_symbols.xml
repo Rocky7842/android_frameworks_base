@@ -35,6 +35,9 @@
     <!-- Whether device has SFC charging support -->
     <java-symbol type="bool" name="config_hasSfcCharger" />
 
+    <!-- Whether device has AFC charging support -->
+    <java-symbol type="bool" name="config_hasAfcCharger" />
+
     <!-- Path to fast charging status file to detect whether an oem fast charger is active -->
     <java-symbol type="string" name="config_oemFastChargerStatusPath" />
 

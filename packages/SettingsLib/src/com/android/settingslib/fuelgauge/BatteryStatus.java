@@ -31,6 +31,7 @@ import static android.os.BatteryManager.EXTRA_TEMPERATURE;
 import static android.os.OsProtoEnums.BATTERY_PLUGGED_NONE;
 import static android.os.BatteryManager.EXTRA_SFC_CHARGER;
 import static android.os.BatteryManager.EXTRA_SFC_V2_CHARGER;
+import static android.os.BatteryManager.EXTRA_AFC_CHARGER;
 
 import android.content.Context;
 import android.content.Intent;
@@ -55,6 +56,8 @@ public class BatteryStatus {
     public static final int CHARGING_OEM = 3;
     public static final int CHARGING_SFC = 4;
     public static final int CHARGING_SFC_V2 = 5;
+    public static final int CHARGING_AFC = 6;
+
     public static final int LOW_BATTERY_THRESHOLD = 20;
     public static final int SEVERE_LOW_BATTERY_THRESHOLD = 10;
     public static final int EXTREME_LOW_BATTERY_THRESHOLD = 4;
@@ -73,6 +76,7 @@ public class BatteryStatus {
     public final boolean oemChargeStatus;
     public final boolean sfcChargeStatus;
     public final boolean sfcV2ChargeStatus;
+    public final boolean afcChargeStatus;
 
     public static BatteryStatus create(Context context, boolean incompatibleCharger) {
         final Intent batteryChangedIntent = BatteryUtils.getBatteryIntent(context);
@@ -84,7 +88,8 @@ public class BatteryStatus {
             float maxChargingWattage, boolean present,
             float maxChargingCurrent, float maxChargingVoltage,
             float temperature, boolean oemChargeStatus,
-            boolean sfcChargeStatus, boolean sfcV2ChargeStatus) {
+            boolean sfcChargeStatus, boolean sfcV2ChargeStatus,
+            boolean afcChargeStatus) {
         this.status = status;
         this.level = level;
         this.plugged = plugged;
@@ -95,6 +100,7 @@ public class BatteryStatus {
         this.oemChargeStatus = oemChargeStatus;
         this.sfcChargeStatus = sfcChargeStatus;
         this.sfcV2ChargeStatus = sfcV2ChargeStatus;
+        this.afcChargeStatus = afcChargeStatus;
         this.present = present;
         this.temperature = temperature;
         this.incompatibleCharger = Optional.empty();
@@ -118,6 +124,7 @@ public class BatteryStatus {
         oemChargeStatus = batteryChangedIntent.getBooleanExtra(EXTRA_OEM_CHARGER, false);
         sfcChargeStatus = batteryChangedIntent.getBooleanExtra(EXTRA_SFC_CHARGER, false);
         sfcV2ChargeStatus = batteryChangedIntent.getBooleanExtra(EXTRA_SFC_V2_CHARGER, false);
+        afcChargeStatus = batteryChangedIntent.getBooleanExtra(EXTRA_AFC_CHARGER, false);
         present = batteryChangedIntent.getBooleanExtra(EXTRA_PRESENT, true);
         temperature = batteryChangedIntent.getIntExtra(EXTRA_TEMPERATURE, -1);
         this.incompatibleCharger = incompatibleCharger;
@@ -182,6 +189,7 @@ public class BatteryStatus {
         return oemChargeStatus ? CHARGING_OEM :
                 sfcChargeStatus ? CHARGING_SFC :
                 sfcV2ChargeStatus ? CHARGING_SFC_V2 :
+                afcChargeStatus ? CHARGING_AFC :
                 maxChargingWattage <= 0 ? CHARGING_UNKNOWN :
                 maxChargingWattage < slowThreshold ? CHARGING_SLOWLY :
                         maxChargingWattage > fastThreshold ? CHARGING_FAST :
