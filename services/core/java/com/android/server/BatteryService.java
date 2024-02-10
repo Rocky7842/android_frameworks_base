@@ -197,6 +197,10 @@ public final class BatteryService extends SystemService {
     private boolean mHasSfcCharger;
     private boolean mLastSfcCharger;
 
+    private boolean mSfcV2Charger;
+    private boolean mHasSfcV2Charger;
+    private boolean mLastSfcV2Charger;
+
     private long mDischargeStartTime;
     private int mDischargeStartLevel;
 
@@ -608,6 +612,7 @@ public final class BatteryService extends SystemService {
 
         mOemCharger = mHasOemCharger && isOemCharger();
         mSfcCharger = mHasSfcCharger && (isSfcCharger() || isOemCharger());
+        mSfcV2Charger = mHasSfcCharger && (isSfcV2Charger() || isOemCharger());
 
         if (force
                 || (mHealthInfo.batteryStatus != mLastBatteryStatus
@@ -632,7 +637,8 @@ public final class BatteryService extends SystemService {
                         || mBatteryModProps.modPowerSource != mLastModPowerSource
                         || mHealthInfo.chargingState != mLastCharingState
                         || mOemCharger != mLastOemCharger
-                        || mSfcCharger != mLastSfcCharger)) {
+                        || mSfcCharger != mLastSfcCharger
+                        || mSfcV2Charger != mLastSfcV2Charger)) {
 
             if (mPlugType != mLastPlugType) {
                 if (mLastPlugType == BATTERY_PLUGGED_NONE) {
@@ -825,6 +831,7 @@ public final class BatteryService extends SystemService {
             mLastModPowerSource = mBatteryModProps.modPowerSource;
             mLastOemCharger = mOemCharger;
             mLastSfcCharger = mSfcCharger;
+            mLastSfcV2Charger = mSfcV2Charger;
         }
     }
 
@@ -870,6 +877,7 @@ public final class BatteryService extends SystemService {
         intent.putExtra(BatteryManager.EXTRA_MOD_POWER_SOURCE, mBatteryModProps.modPowerSource);
         intent.putExtra(BatteryManager.EXTRA_OEM_CHARGER, mOemCharger);
         intent.putExtra(BatteryManager.EXTRA_SFC_CHARGER, mSfcCharger);
+        intent.putExtra(BatteryManager.EXTRA_SFC_V2_CHARGER, mSfcV2Charger);
         if (DEBUG) {
             Slog.d(TAG, "Sending ACTION_BATTERY_CHANGED. scale:" + BATTERY_SCALE
                     + ", info:" + mHealthInfo.toString());
@@ -980,6 +988,20 @@ public final class BatteryService extends SystemService {
             br.close();
             file.close();
             return "3".equals(state);
+        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
+        }
+        return false;
+    }
+
+    private boolean isSfcV2Charger() {
+        try {
+            FileReader file = new FileReader("/sys/class/power_supply/battery/hv_charger_status");
+            BufferedReader br = new BufferedReader(file);
+            String state = br.readLine();
+            br.close();
+            file.close();
+            return "4".equals(state);
         } catch (FileNotFoundException e) {
         } catch (IOException e) {
         }

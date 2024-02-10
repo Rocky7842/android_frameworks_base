@@ -1095,6 +1095,10 @@ public class KeyguardIndicationController {
                             ? R.string.keyguard_indication_sfc_charging_time
                             : R.string.keyguard_plugged_in_sfc_charging;
                     break;
+                case BatteryStatus.CHARGING_SFC_V2:
+                    chargingId = hasChargingTime
+                            ? R.string.keyguard_indication_sfc_v2_charging_time
+                            : R.string.keyguard_plugged_in_sfc_v2_charging;
                 case BatteryStatus.CHARGING_FAST:
                     chargingId = hasChargingTime
                             ? R.string.keyguard_indication_charging_time_fast
