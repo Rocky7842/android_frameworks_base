@@ -200,6 +200,10 @@ public final class BatteryService extends SystemService {
     private boolean mHasOemCharger;
     private boolean mLastOemCharger;
 
+    private boolean mSfcCharger;
+    private boolean mHasSfcCharger;
+    private boolean mLastSfcCharger;
+
     private long mDischargeStartTime;
     private int mDischargeStartLevel;
 
@@ -268,6 +272,8 @@ public final class BatteryService extends SystemService {
                 mContext.getResources().getBoolean(com.android.internal.R.bool.config_hasWarpCharger) ||
                 mContext.getResources().getBoolean(com.android.internal.R.bool.config_hasVoocCharger) ||
                 mContext.getResources().getBoolean(com.android.internal.R.bool.config_hasTurboPowerCharger);
+        mHasSfcCharger = mContext.getResources().getBoolean(
+                com.android.internal.R.bool.config_hasSfcCharger);
 
         mCriticalBatteryLevel = mContext.getResources().getInteger(
                 com.android.internal.R.integer.config_criticalBatteryWarningLevel);
@@ -611,6 +617,7 @@ public final class BatteryService extends SystemService {
         shutdownIfOverTempLocked();
 
         mOemCharger = mHasOemCharger && isOemCharger();
+        mSfcCharger = mHasSfcCharger && (isSfcCharger() || isOemCharger());
 
         if (force || mHealthInfo.chargingPolicy != mLastChargingPolicy) {
             mLastChargingPolicy = mHealthInfo.chargingPolicy;
@@ -636,6 +643,7 @@ public final class BatteryService extends SystemService {
                         || mBatteryModProps.modType != mLastModType
                         || mBatteryModProps.modPowerSource != mLastModPowerSource
                         || mOemCharger != mLastOemCharger
+                        || mSfcCharger != mLastSfcCharger
                         || mHealthInfo.chargingState != mLastChargingState
                         || mHealthInfo.batteryFullChargeUah != mLastBatteryFullCharge
                         || mHealthInfo.batteryFullChargeDesignCapacityUah !=
@@ -831,6 +839,7 @@ public final class BatteryService extends SystemService {
             mLastModType = mBatteryModProps.modType;
             mLastModPowerSource = mBatteryModProps.modPowerSource;
             mLastOemCharger = mOemCharger;
+            mLastSfcCharger = mSfcCharger;
         }
     }
 
@@ -875,6 +884,7 @@ public final class BatteryService extends SystemService {
         intent.putExtra(BatteryManager.EXTRA_MOD_TYPE, mBatteryModProps.modType);
         intent.putExtra(BatteryManager.EXTRA_MOD_POWER_SOURCE, mBatteryModProps.modPowerSource);
         intent.putExtra(BatteryManager.EXTRA_OEM_CHARGER, mOemCharger);
+        intent.putExtra(BatteryManager.EXTRA_SFC_CHARGER, mSfcCharger);
         if (DEBUG) {
             Slog.d(TAG, "Sending ACTION_BATTERY_CHANGED. scale:" + BATTERY_SCALE
                     + ", info:" + mHealthInfo.toString());
@@ -990,6 +1000,20 @@ public final class BatteryService extends SystemService {
         } catch (IOException e) {
             Slog.e(TAG, "Failed to read oem fast charger status path: "
                 + path + " " + path2);
+        }
+        return false;
+    }
+
+    private boolean isSfcCharger() {
+        try {
+            FileReader file = new FileReader("/sys/class/power_supply/battery/hv_charger_status");
+            BufferedReader br = new BufferedReader(file);
+            String state = br.readLine();
+            br.close();
+            file.close();
+            return "3".equals(state);
+        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
         }
         return false;
     }
